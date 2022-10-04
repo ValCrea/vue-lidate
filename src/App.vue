@@ -21,7 +21,7 @@ import {
   url,
 } from "@vuelidate/validators";
 
-let sucess = false;
+let sucess = ref(false);
 const customValidator = (value: string) =>
   !helpers.req(value) || value.includes("vue");
 
@@ -70,7 +70,7 @@ const rules = computed(() => {
 
   Object.keys(inputs).forEach((key, ind) => {
     rules[key] = {
-      req: requiredIf(!sucess),
+      req: requiredIf(!sucess.value),
     };
 
     rules[key] = {
@@ -84,17 +84,18 @@ const rules = computed(() => {
 const v$ = useVuelidate(rules, inputs);
 
 const submit = async () => {
-  sucess = await v$.value.$validate();
+  sucess.value = await v$.value.$validate();
 };
 </script>
 
 <template>
+  <h1 class="title">Vuelidate</h1>
   <section class="vuelidate">
     <div v-for="(_, key, ind) in inputs" :key="key" class="vuelidate__inputs">
       <input
         type="text"
         v-model="inputs[key].value"
-        :placeholder="lables[ind || -1] || 'Unknown'"
+        :placeholder="lables[ind !== undefined ? ind : -1] || 'Unknown'"
         class="vuelidate__input"
       />
       <p v-if="sucess" class="vuelidate__sucess">Sucess</p>
@@ -103,11 +104,24 @@ const submit = async () => {
       <p v-else class="vuelidate__valid">Valid</p>
       <br />
     </div>
-    <button @click="submit">Submit</button>
+    <button @click="submit" class="vuelidate__submit">Submit</button>
   </section>
 </template>
 
 <style scoped lang="scss">
+:global(body) {
+  background-color: #fdfdff;
+}
+
+.title {
+  padding-top: 2rem;
+  text-align: center;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+  font-size: 3rem;
+  color: #0f0f5f;
+}
+
 .vuelidate {
   max-width: 400px;
   width: 90%;
@@ -120,7 +134,7 @@ const submit = async () => {
   align-items: center;
   gap: 1rem;
 
-  background-color: #f0f0f0;
+  background-color: #f0f0f3;
   border-radius: 2rem;
 
   &__inputs {
@@ -132,24 +146,62 @@ const submit = async () => {
   }
 
   &__input {
-    width: 75%;
+    flex: 1;
     padding: 0.2rem 0.4rem;
+
+    border-radius: 0.2rem;
+    border: 2px solid rgba(0, 0, 0, 0);
+    background-color: #fafafe;
+
+    &:focus {
+      outline: none;
+      border-color: #0f0f5f;
+    }
+  }
+
+  &__text {
+    width: 6ch;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   }
 
   &__error {
+    @extend .vuelidate__text;
     color: firebrick;
   }
 
   &__warning {
+    @extend .vuelidate__text;
     color: orange;
   }
 
   &__valid {
+    @extend .vuelidate__text;
     color: royalblue;
   }
 
   &__sucess {
+    @extend .vuelidate__text;
     color: forestgreen;
+  }
+
+  &__submit {
+    width: 50%;
+    padding: 0.4rem;
+
+    cursor: pointer;
+    border: solid 2px #0f0f5f;
+    border-radius: 0.5rem;
+    background-color: #e5e5f5;
+
+    &:hover {
+      background-color: #d5d5e5;
+    }
+
+    &:focus {
+      background-color: #c5c5d5;
+    }
   }
 }
 </style>
