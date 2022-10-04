@@ -1,15 +1,25 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useVuelidate } from "@vuelidate/core";
-import { required } from "@vuelidate/validators";
+import { requiredIf, minLength, maxLength } from "@vuelidate/validators";
 
-const inputs = { input1: ref(""), input2: ref("") };
+const condition = true;
+
+const requirements = [minLength(5), maxLength(5)];
+const inputs: any = {};
+requirements.forEach((req, ind) => (inputs[`input${ind}`] = ref("")));
+
 const rules = computed(() => {
   const rules: any = {};
 
-  Object.keys(inputs).forEach((key) => {
+  Object.keys(inputs).forEach((key, ind) => {
     rules[key] = {
-      required,
+      req: requiredIf(condition),
+    };
+
+    rules[key] = {
+      ...rules[key],
+      con: requirements[ind],
     };
   });
 
