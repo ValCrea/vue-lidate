@@ -21,7 +21,7 @@ import {
   url,
 } from "@vuelidate/validators";
 
-const condition = true;
+let sucess = false;
 const customValidator = (value: string) =>
   !helpers.req(value) || value.includes("vue");
 
@@ -70,7 +70,7 @@ const rules = computed(() => {
 
   Object.keys(inputs).forEach((key, ind) => {
     rules[key] = {
-      req: requiredIf(condition),
+      req: requiredIf(!sucess),
     };
 
     rules[key] = {
@@ -84,24 +84,72 @@ const rules = computed(() => {
 const v$ = useVuelidate(rules, inputs);
 
 const submit = async () => {
-  if (await v$.value.$validate()) console.log("Valid");
-  else console.log("Invalid");
+  sucess = await v$.value.$validate();
 };
 </script>
 
 <template>
-  <div v-for="(_, key, ind) in inputs" :key="key">
-    <input
-      type="text"
-      v-model="inputs[key].value"
-      :placeholder="lables[ind || -1] || 'Unknown'"
-    />
-    <p v-if="v$[key].$error">Error</p>
-    <p v-else-if="v$[key].$invalid">Invalid</p>
-    <p v-else>Valid</p>
-    <br />
-  </div>
-  <button @click="submit">Submit</button>
+  <section class="vuelidate">
+    <div v-for="(_, key, ind) in inputs" :key="key" class="vuelidate__inputs">
+      <input
+        type="text"
+        v-model="inputs[key].value"
+        :placeholder="lables[ind || -1] || 'Unknown'"
+        class="vuelidate__input"
+      />
+      <p v-if="sucess" class="vuelidate__sucess">Sucess</p>
+      <p v-else-if="v$[key].$error" class="vuelidate__error">Error</p>
+      <p v-else-if="v$[key].$invalid" class="vuelidate__warning">Invalid</p>
+      <p v-else class="vuelidate__valid">Valid</p>
+      <br />
+    </div>
+    <button @click="submit">Submit</button>
+  </section>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.vuelidate {
+  max-width: 400px;
+  width: 90%;
+  padding: 3rem;
+  margin-inline: auto;
+  margin-block: 3rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  background-color: #f0f0f0;
+  border-radius: 2rem;
+
+  &__inputs {
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  &__input {
+    width: 75%;
+    padding: 0.2rem 0.4rem;
+  }
+
+  &__error {
+    color: firebrick;
+  }
+
+  &__warning {
+    color: orange;
+  }
+
+  &__valid {
+    color: royalblue;
+  }
+
+  &__sucess {
+    color: forestgreen;
+  }
+}
+</style>
