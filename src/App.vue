@@ -90,9 +90,12 @@ const submit = async () => {
 </script>
 
 <template>
-  <!--Vue error? key isnt number and ind isnt unidentified-->
   <div v-for="(_, key, ind) in inputs" :key="key">
-    <input type="text" v-model="inputs[key].value" :placeholder="lables[ind]" />
+    <input
+      type="text"
+      v-model="inputs[key].value"
+      :placeholder="lables[ind || -1] || 'Unknown'"
+    />
     <p v-if="v$[key].$error">Error</p>
     <p v-else-if="v$[key].$invalid">Invalid</p>
     <p v-else>Valid</p>
