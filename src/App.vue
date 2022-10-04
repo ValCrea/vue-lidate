@@ -1,13 +1,69 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useVuelidate } from "@vuelidate/core";
-import { requiredIf, minLength, maxLength } from "@vuelidate/validators";
+import { helpers } from "@vuelidate/validators";
+import {
+  requiredIf,
+  minLength,
+  maxLength,
+  minValue,
+  maxValue,
+  between,
+  alpha,
+  numeric,
+  alphaNum,
+  integer,
+  decimal,
+  email,
+  ipAddress,
+  macAddress,
+  sameAs,
+  url,
+} from "@vuelidate/validators";
 
 const condition = true;
+const customValidator = (value: string) =>
+  !helpers.req(value) || value.includes("vue");
 
-const requirements = [minLength(5), maxLength(5)];
+const requirements = [
+  minLength(5),
+  maxLength(5),
+  minValue(10),
+  maxValue(10),
+  between(1, 10),
+  alpha,
+  numeric,
+  alphaNum,
+  integer,
+  decimal,
+  email,
+  ipAddress,
+  macAddress(""), // Argument is custom seperator
+  sameAs("sameAs"),
+  url,
+  customValidator,
+];
+const lables: any = [
+  "minLength",
+  "maxLength",
+  "minValue",
+  "maxValue",
+  "between",
+  "alpha",
+  "numeric",
+  "alphaNum",
+  "integer",
+  "decimal",
+  "email",
+  "ipAddress",
+  "macAddress",
+  "sameAs",
+  "url",
+  "customValidator",
+];
+
 const inputs: any = {};
-requirements.forEach((req, ind) => (inputs[`input${ind}`] = ref("")));
+requirements.forEach((_, ind) => (inputs[`input${ind}`] = ref()));
 
 const rules = computed(() => {
   const rules: any = {};
@@ -34,9 +90,12 @@ const submit = async () => {
 </script>
 
 <template>
-  <div v-for="(_, key) in inputs" :key="key">
-    <input type="text" v-model="inputs[key].value" />
-    <p>{{ v$[key].$dirty }} {{ v$[key].$invalid }} {{ v$[key].$error }}</p>
+  <!--Vue error? key isnt number and ind isnt unidentified-->
+  <div v-for="(_, key, ind) in inputs" :key="key">
+    <input type="text" v-model="inputs[key].value" :placeholder="lables[ind]" />
+    <p v-if="v$[key].$error">Error</p>
+    <p v-else-if="v$[key].$invalid">Invalid</p>
+    <p v-else>Valid</p>
     <br />
   </div>
   <button @click="submit">Submit</button>
